@@ -160,9 +160,11 @@ pub mod agreement_program {
     //     let payment_from = &mut ctx.accounts.owner;
     //     let payment_to = &mut ctx.accounts.professional;
     //     let agreement_account = &mut ctx.accounts.agreement;
+
     //     let agreement_company = agreement_account.company;
     //     let amount_to_pay = agreement_account.payment.amount;
     //     let payment_address = agreement_account.professional;
+
     //     let payment_token = &ctx.accounts.payment_token;
 
     //     // Check if the agreement exists
@@ -170,21 +172,22 @@ pub mod agreement_program {
     //         return err!(ErrorCode::Unauthorized);
     //     }
 
-    //     // Check if the agreement exists
+    //     // Check if the payment address is correct
     //     if payment_to.key() != payment_address {
     //         return err!(ErrorCode::Unauthorized);
     //     }
 
+           //
     //     // Check if the payment token is accepted
-    //     if !agreement_account
+    //     if agreement_account
     //         .accepted_payment_tokens
-    //         .contains(&payment_token.key())
+    //         != &payment_token.key()
     //     {
     //         return err!(ErrorCode::InvalidPaymentToken);
     //     }
 
     //     // Check if the payment amount is valid
-    //     if amount_to_pay == 0 {
+    //     if amount_to_pay <= 0 {
     //         return err!(ErrorCode::InvalidPaymentAmount);
     //     }
 
@@ -210,8 +213,15 @@ pub mod agreement_program {
 }
 
 #[derive(Accounts)]
+#[instruction(id: String)]
 pub struct InitializeAgreement<'info> {
-    #[account(init, payer = company, space = 8 + 1024)]
+    #[account(
+        init,
+        payer = company,
+        space = 2000,
+        seeds = [b"agreement".as_ref(), company.key().as_ref()],
+        bump
+    )]
     pub agreement: Account<'info, AgreementAccount>,
     #[account(mut)]
     pub company: Signer<'info>,
@@ -219,7 +229,7 @@ pub struct InitializeAgreement<'info> {
         init_if_needed,
         payer = company,
         space = 1024,
-        seeds = [b"company_agreements".as_ref(),company.key().as_ref()],
+        seeds = [b"company_agreements".as_ref(), company.key().as_ref()],
         bump
     )]
     pub company_agreements: Account<'info, CompanyAgreements>, // Added

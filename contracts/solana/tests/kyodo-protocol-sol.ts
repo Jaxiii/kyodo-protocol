@@ -13,9 +13,11 @@ describe("agreement_program", () => {
   const professionalAddress = anchor.web3.Keypair.generate();
 
   it("Initializes Agreement", async () => {
-    const stingBuffer = Buffer.from("company_agreements", "utf-8");
+    const agreementVecBuffer = Buffer.from("company_agreements", "utf-8");
+    const agreementBuffer = Buffer.from("agreement", "utf-8");
+    const idBuffer = Buffer.from("1", "utf-8");
 
-    const agreementAddress = anchor.web3.Keypair.generate();
+    //const agreementAddress = anchor.web3.Keypair.generate();
 
     // find PDA
     // https://www.anchor-lang.com/docs/pdas
@@ -23,7 +25,14 @@ describe("agreement_program", () => {
     // TODO: check for programs sign / modify pda 
     const [companyAgreementsPublicKey, _] =
       anchor.web3.PublicKey.findProgramAddressSync(
-        [stingBuffer, companyAddress.toBytes()],
+        [agreementVecBuffer, companyAddress.toBytes()],
+        program.programId
+      );
+
+      
+      const [agreementsPublicKey, _2] =
+      anchor.web3.PublicKey.findProgramAddressSync(
+        [agreementBuffer, idBuffer ,companyAddress.toBytes()],
         program.programId
       );
 
@@ -48,26 +57,26 @@ describe("agreement_program", () => {
       status: 0
   } as any;
 
+
     const tx = await program.methods
       .initializeAgreement(agreement)
       .accounts({
-        agreement: agreementAddress.publicKey,
+        agreement: agreementsPublicKey,
         company: companyAddress,
         companyAgreements: companyAgreementsPublicKey, // The PDA address, you'll have to compute this based on your program logic
         systemProgram: anchor.web3.SystemProgram.programId,
       })
-      .signers([agreementAddress])
       .rpc();
 
-    const fetchedAgreement = await program.account.agreementAccount.fetch(
-      agreementAddress.publicKey
-    );
+    // const fetchedAgreement = await program.account.agreementAccount.fetch(
+    //   agreementsPublicKey
+    // );
 
-    const fetchedCompanyAgreements =
-      await program.account.companyAgreements.fetch(companyAgreementsPublicKey);
+    // const fetchedCompanyAgreements =
+    //   await program.account.companyAgreements.fetch(companyAgreementsPublicKey);
 
-    console.log("Your agreement account:", fetchedAgreement);
-    console.log("Your company agreements:", fetchedCompanyAgreements);
-    console.log("Your transaction signature:", tx);
+    // console.log("Your agreement account:", fetchedAgreement);
+    // console.log("Your company agreements:", fetchedCompanyAgreements);
+    // console.log("Your transaction signature:", tx);
   });
 });
