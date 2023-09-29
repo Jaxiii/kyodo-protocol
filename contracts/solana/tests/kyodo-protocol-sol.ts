@@ -11,7 +11,6 @@
  */
 
 // Required module and dependency imports
-
 import * as anchor from "@coral-xyz/anchor"; // The anchor module provides various tools to develop and test Solana programs.
 import { BN } from "@coral-xyz/anchor"; // Importing the BN (Big Number) library from anchor for handling large integers.
 import { AgreementProgram } from "../target/types/agreement_program"; // Custom data type definitions for the agreement program.
